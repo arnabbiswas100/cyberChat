@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CyberChat — Neural Link Active</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+  <!-- ===================== SCANLINE OVERLAY ===================== -->
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <!-- ===================== AUTH SCREEN ===================== -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-bg-effects">
+      <div class="auth-grid"></div>
+      <div class="auth-orb orb-1"></div>
+      <div class="auth-orb orb-2"></div>
+      <div class="auth-orb orb-3"></div>
+    </div>
+
+    <div class="auth-container">
+      <!-- Logo -->
+      <div class="auth-logo">
+        <div class="logo-icon">
+          <span class="logo-bracket">[</span>
+          <span class="logo-text glitch" data-text="CC">CC</span>
+          <span class="logo-bracket">]</span>
+        </div>
+        <h1 class="logo-title">CYBER<span class="accent">CHAT</span></h1>
+        <p class="logo-sub">// NEURAL LINK INTERFACE v2.4.1</p>
+      </div>
+
+      <!-- Tab switcher -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">LOGIN</button>
+        <button class="auth-tab" data-tab="register">REGISTER</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="login-form" class="auth-form active">
+        <div class="form-group">
+          <label class="form-label">USERNAME / EMAIL</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">></span>
+            <input type="text" id="login-identifier" class="cyber-input" placeholder="enter_identity..." autocomplete="username" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">PASSWORD</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">></span>
+            <input type="password" id="login-password" class="cyber-input" placeholder="••••••••••••" autocomplete="current-password" />
+            <button class="toggle-password" type="button" aria-label="Toggle password">👁</button>
+          </div>
+        </div>
+        <button id="login-btn" class="cyber-btn primary full-width">
+          <span class="btn-text">ESTABLISH CONNECTION</span>
+          <span class="btn-loader hidden"></span>
+        </button>
+        <p id="login-error" class="form-error hidden"></p>
+      </div>
+
+      <!-- Register Form -->
+      <div id="register-form" class="auth-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">USERNAME</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">></span>
+              <input type="text" id="reg-username" class="cyber-input" placeholder="choose_handle..." />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">DISPLAY NAME</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">></span>
+              <input type="text" id="reg-displayname" class="cyber-input" placeholder="your_name..." />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">EMAIL</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">></span>
+            <input type="email" id="reg-email" class="cyber-input" placeholder="user@domain.net" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">PASSWORD</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">></span>
+            <input type="password" id="reg-password" class="cyber-input" placeholder="min 8 chars..." />
+            <button class="toggle-password" type="button" aria-label="Toggle password">👁</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CONFIRM PASSWORD</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">></span>
+            <input type="password" id="reg-confirm" class="cyber-input" placeholder="repeat password..." />
+          </div>
+        </div>
+        <button id="register-btn" class="cyber-btn primary full-width">
+          <span class="btn-text">CREATE IDENTITY</span>
+          <span class="btn-loader hidden"></span>
+        </button>
+        <p id="register-error" class="form-error hidden"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN CHAT APP ===================== -->
+  <div id="app-screen" class="screen">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-bracket">[</span><span class="accent">CC</span><span class="logo-bracket">]</span>
+        </div>
+        <div class="sidebar-actions">
+          <button id="theme-toggle" class="icon-btn" title="Toggle Theme">☀</button>
+          <button id="new-chat-btn" class="icon-btn" title="New Chat">✦</button>
+          <button id="profile-btn" class="icon-btn" title="Profile">⊙</button>
+        </div>
+      </div>
+
+      <!-- Current User Info -->
+      <div class="current-user" id="current-user-bar">
+        <div class="avatar-wrap">
+          <img id="my-avatar" src="" alt="My Avatar" class="avatar" />
+          <span class="status-dot online" id="my-status-dot"></span>
+        </div>
+        <div class="user-info">
+          <span id="my-display-name" class="user-name">Loading...</span>
+          <span id="my-username" class="user-handle">@...</span>
+        </div>
+        <button id="logout-btn" class="icon-btn danger" title="Disconnect">⏻</button>
+      </div>
+
+      <!-- Search -->
+      <div class="search-wrapper">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="conversation-search" class="search-input" placeholder="Search chats..." />
+      </div>
+
+      <!-- Conversation List -->
+      <div class="conv-list" id="conversation-list">
+        <div class="list-placeholder">
+          <span class="placeholder-icon">◈</span>
+          <p>No active channels</p>
+          <small>Start a new conversation</small>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <span class="status-text" id="connection-status">● CONNECTING...</span>
+      </div>
+    </aside>
+
+    <!-- MAIN CHAT AREA -->
+    <main class="chat-main" id="chat-main">
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-grid"></div>
+        <div class="empty-content">
+          <div class="empty-icon glitch" data-text="◈">◈</div>
+          <h2>SELECT A CHANNEL</h2>
+          <p>Choose a conversation from the sidebar<br/>or start a new neural link</p>
+          <button class="cyber-btn secondary" id="empty-new-chat">INITIATE NEW LINK</button>
+        </div>
+      </div>
+
+      <!-- Chat Window (hidden until conversation selected) -->
+      <div class="chat-window hidden" id="chat-window">
+
+        <!-- Chat Header -->
+        <div class="chat-header">
+          <button class="icon-btn back-btn" id="back-btn" title="Back">←</button>
+          <div class="chat-header-info" id="chat-header-info">
+            <div class="avatar-wrap">
+              <img id="chat-avatar" src="" alt="" class="avatar" />
+              <span class="status-dot" id="chat-status-dot"></span>
+            </div>
+            <div>
+              <span id="chat-name" class="chat-title">—</span>
+              <span id="chat-status-text" class="chat-sub">offline</span>
+            </div>
+          </div>
+          <div class="chat-header-actions">
+            <button class="icon-btn" id="chat-search-btn" title="Search messages">⌕</button>
+            <button class="icon-btn" id="chat-info-btn" title="User info">ℹ</button>
+          </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="messages-area" id="messages-area">
+          <div class="messages-loader hidden" id="messages-loader">
+            <span class="loader-ring"></span> LOADING TRANSMISSION...
+          </div>
+          <div class="load-more-wrap" id="load-more-wrap">
+            <button class="cyber-btn ghost small" id="load-more-btn">↑ LOAD OLDER</button>
+          </div>
+          <div id="messages-list" class="messages-list"></div>
+          <!-- Typing Indicator -->
+          <div class="typing-indicator hidden" id="typing-indicator">
+            <div class="typing-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <span id="typing-name" class="typing-text">user is typing...</span>
+          </div>
+        </div>
+
+        <!-- Reply Preview Bar -->
+        <div class="reply-bar hidden" id="reply-bar">
+          <div class="reply-content">
+            <span class="reply-label">↩ REPLYING TO</span>
+            <span id="reply-author" class="reply-author"></span>
+            <span id="reply-preview" class="reply-preview"></span>
+          </div>
+          <button class="icon-btn" id="reply-cancel">✕</button>
+        </div>
+
+        <!-- Mention Autocomplete -->
+        <div class="mention-popup hidden" id="mention-popup"></div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+          <button class="icon-btn" id="attach-btn" title="Attach file">⊕</button>
+          <input type="file" id="file-input" multiple accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip" hidden />
+          <div class="message-input-wrap">
+            <textarea
+              id="message-input"
+              class="message-input"
+              placeholder="Transmit message..."
+              rows="1"
+              maxlength="2000"
+            ></textarea>
+          </div>
+          <button class="icon-btn" id="emoji-btn" title="Emoji">☻</button>
+          <button class="cyber-btn send-btn" id="send-btn" title="Send">▶</button>
+        </div>
+
+        <!-- File Preview Strip -->
+        <div class="file-preview-strip hidden" id="file-preview-strip">
+          <div id="file-preview-list" class="file-preview-list"></div>
+          <button class="icon-btn danger" id="clear-files">✕ CLEAR</button>
+        </div>
+
+      </div><!-- end chat-window -->
+    </main>
+  </div><!-- end app-screen -->
+
+  <!-- ===================== MODALS ===================== -->
+
+  <!-- New Chat Modal -->
+  <div class="modal-overlay hidden" id="new-chat-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>NEW NEURAL LINK</h3>
+        <button class="icon-btn modal-close" data-modal="new-chat-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="input-wrapper">
+          <span class="input-prefix">⌕</span>
+          <input type="text" id="user-search-input" class="cyber-input" placeholder="Search users by name or @handle..." />
+        </div>
+        <div id="user-search-results" class="search-results"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div class="modal-overlay hidden" id="profile-modal">
+    <div class="modal-box wide">
+      <div class="modal-header">
+        <h3>IDENTITY PROFILE</h3>
+        <button class="icon-btn modal-close" data-modal="profile-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Avatar Section -->
+        <div class="profile-avatar-section">
+          <div class="profile-avatar-wrap">
+            <img id="profile-avatar-preview" src="" alt="Avatar" class="profile-avatar" />
+            <button class="avatar-change-btn" id="avatar-change-btn">CHANGE</button>
+          </div>
+          <input type="file" id="avatar-input" accept="image/*" hidden />
+        </div>
+        <!-- Fields -->
+        <div class="form-group">
+          <label class="form-label">DISPLAY NAME</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">></span>
+            <input type="text" id="profile-displayname" class="cyber-input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">BIO</label>
+          <textarea id="profile-bio" class="cyber-input" rows="3" placeholder="Your identity description..."></textarea>
+        </div>
+        <button id="save-profile-btn" class="cyber-btn primary">SAVE CHANGES</button>
+        <hr class="divider" />
+        <h4 class="section-sub">CHANGE PASSWORD</h4>
+        <div class="form-group">
+          <label class="form-label">CURRENT PASSWORD</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">></span>
+            <input type="password" id="current-password" class="cyber-input" placeholder="Current password..." />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">NEW PASSWORD</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">></span>
+            <input type="password" id="new-password" class="cyber-input" placeholder="New password..." />
+          </div>
+        </div>
+        <button id="change-password-btn" class="cyber-btn secondary">UPDATE PASSWORD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Context Menu -->
+  <div class="context-menu hidden" id="context-menu">
+    <button class="ctx-item" id="ctx-reply">↩ Reply</button>
+    <button class="ctx-item" id="ctx-copy">⎘ Copy</button>
+    <button class="ctx-item" id="ctx-edit">✎ Edit</button>
+    <button class="ctx-item danger" id="ctx-delete-me">⊗ Delete for me</button>
+    <button class="ctx-item danger" id="ctx-delete-all">⊗ Delete for everyone</button>
+  </div>
+
+  <!-- Emoji Picker -->
+  <div class="emoji-picker hidden" id="emoji-picker">
+    <div class="emoji-search-wrap">
+      <input type="text" id="emoji-search" class="emoji-search" placeholder="Search emoji..." />
+    </div>
+    <div class="emoji-categories" id="emoji-categories"></div>
+    <div class="emoji-grid" id="emoji-grid"></div>
+  </div>
+
+  <!-- Image Lightbox -->
+  <div class="lightbox hidden" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close">✕</button>
+    <img id="lightbox-img" src="" alt="Preview" />
+    <a id="lightbox-download" class="cyber-btn secondary small" download>↓ DOWNLOAD</a>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/messages.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
