@@ -261,8 +261,15 @@ class ChatManager {
   async startConversation(user) {
     try {
       const data = await API.chat.createConversation(user.id);
-      // data = the conversation object
-      const conv = data.conversation || data;
+      // FIX: backend returns { conversation_id, other_user, is_new } — reshape to expected conv shape
+      const conv = {
+        id: data.conversation_id,
+        other_user: data.other_user,
+        last_message: null,
+        unread_count: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
       // Add to conversations list (or update if exists)
       const existingIdx = this.conversations.findIndex(c => c.id === conv.id);

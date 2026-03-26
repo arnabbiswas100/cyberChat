@@ -371,6 +371,9 @@ class MessagesManager {
    */
   onNewMessage(message) {
     if (message.conversation_id !== this.currentConvId) return;
+    // FIX: deduplicate — REST response already rendered this message for the sender,
+    // so when the socket echo arrives we skip it to avoid rendering twice.
+    if (this.messages.some(m => m.id === message.id)) return;
 
     // Add to our in-memory list
     this.messages.push(message);

@@ -247,6 +247,14 @@
           </div>
           <button class="icon-btn" id="emoji-btn" title="Emoji">☻</button>
           <button class="cyber-btn send-btn" id="send-btn" title="Send">▶</button>
+          <!-- FIX: emoji picker lives inside input-area so position:absolute resolves correctly -->
+          <div class="emoji-picker hidden" id="emoji-picker">
+            <div class="emoji-search-wrap">
+              <input type="text" id="emoji-search" class="emoji-search" placeholder="Search emoji..." />
+            </div>
+            <div class="emoji-categories" id="emoji-categories"></div>
+            <div class="emoji-grid" id="emoji-grid"></div>
+          </div>
         </div>
 
         <!-- File Preview Strip -->
@@ -335,15 +343,6 @@
     <button class="ctx-item" id="ctx-edit">✎ Edit</button>
     <button class="ctx-item danger" id="ctx-delete-me">⊗ Delete for me</button>
     <button class="ctx-item danger" id="ctx-delete-all">⊗ Delete for everyone</button>
-  </div>
-
-  <!-- Emoji Picker -->
-  <div class="emoji-picker hidden" id="emoji-picker">
-    <div class="emoji-search-wrap">
-      <input type="text" id="emoji-search" class="emoji-search" placeholder="Search emoji..." />
-    </div>
-    <div class="emoji-categories" id="emoji-categories"></div>
-    <div class="emoji-grid" id="emoji-grid"></div>
   </div>
 
   <!-- Image Lightbox -->

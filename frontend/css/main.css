@@ -768,6 +768,7 @@ textarea.cyber-input:focus {
 
 /* ------------ INPUT AREA ------------ */
 .input-area {
+  position: relative;
   display: flex; align-items: flex-end; gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-top: 1px solid var(--border);
