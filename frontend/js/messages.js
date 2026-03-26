@@ -382,9 +382,9 @@ class MessagesManager {
     const list = document.getElementById('messages-list');
     const el   = this.createMessageElement(message);
 
-    // If there's a typing indicator, insert before it
-    const typingEl = document.getElementById('typing-indicator');
-    list.insertBefore(el, typingEl);
+    // FIX: typing-indicator is a sibling of messages-list, not a child.
+    // insertBefore(el, typingEl) threw a DOM error and silently dropped the message.
+    list.appendChild(el);
 
     // Scroll to bottom to show the new message
     this.scrollToBottom(true);
@@ -564,7 +564,7 @@ class MessagesManager {
 
     // Reply
     document.getElementById('ctx-reply').addEventListener('click', () => {
-      const msgId = parseInt(menu.dataset.msgId);
+      const msgId = menu.dataset.msgId;
       const msg = this.messages.find(m => m.id === msgId);
       if (msg) this.startReply(msg);
       this.hideContextMenu();
@@ -581,7 +581,7 @@ class MessagesManager {
 
     // Edit
     document.getElementById('ctx-edit').addEventListener('click', () => {
-      const msgId   = parseInt(menu.dataset.msgId);
+      const msgId   = menu.dataset.msgId;
       const content = menu.dataset.content;
       this.startEdit(msgId, content);
       this.hideContextMenu();
@@ -589,16 +589,16 @@ class MessagesManager {
 
     // Delete for me
     document.getElementById('ctx-delete-me').addEventListener('click', async () => {
-      const msgId  = parseInt(menu.dataset.msgId);
-      const convId = parseInt(menu.dataset.convId);
+      const msgId  = menu.dataset.msgId;
+      const convId = menu.dataset.convId;
       this.hideContextMenu();
       await this.deleteMessage(msgId, convId, false);
     });
 
     // Delete for everyone
     document.getElementById('ctx-delete-all').addEventListener('click', async () => {
-      const msgId  = parseInt(menu.dataset.msgId);
-      const convId = parseInt(menu.dataset.convId);
+      const msgId  = menu.dataset.msgId;
+      const convId = menu.dataset.convId;
       this.hideContextMenu();
       await this.deleteMessage(msgId, convId, true);
     });
@@ -626,7 +626,7 @@ class MessagesManager {
 
   async submitEdit() {
     const input   = document.getElementById('message-input');
-    const msgId   = parseInt(input.dataset.editingId);
+    const msgId   = input.dataset.editingId;
     const content = input.value.trim();
 
     if (!content) { showToast('Message cannot be empty.', 'warning'); return; }

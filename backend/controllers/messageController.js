@@ -318,7 +318,8 @@ const editMessage = async (req, res) => {
 const deleteMessage = async (req, res) => {
   try {
     const { messageId } = req.params;
-    const { delete_for_everyone = false } = req.body;
+    // FIX: frontend sends ?everyone=true as query param, not request body
+    const delete_for_everyone = req.query.everyone === 'true' || req.body.delete_for_everyone === true;
     const userId = req.user.id;
     
     const msgCheck = await db.query(
