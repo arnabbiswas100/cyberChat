@@ -155,6 +155,14 @@ function initEmojiPicker(onPick) {
   const searchInput = document.getElementById('emoji-search');
   const emojiBtn = document.getElementById('emoji-btn');
 
+  // FIX: Guard against missing DOM elements. If the emoji picker HTML isn't
+  // present yet (or the IDs don't match), bail out instead of crashing silently
+  // with a null-pointer error that prevents the whole input from initializing.
+  if (!picker || !grid || !catsEl || !searchInput || !emojiBtn) {
+    console.warn('[EmojiPicker] One or more required elements not found (#emoji-picker, #emoji-grid, #emoji-categories, #emoji-search, #emoji-btn). Skipping init.');
+    return;
+  }
+
   currentEmojiCallback = onPick;
 
   // Build category buttons

@@ -109,19 +109,23 @@ const register = async (req, res) => {
 // -------------------------------------------------------
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    
-    // ---- Step 1: Find the user by email ----
+    // FIX: the frontend sends { identifier, password } where identifier can be
+    // either an email address or a username. Support both.
+    const identifier = req.body.identifier || req.body.email;
+    const { password } = req.body;
+
+    // ---- Step 1: Find the user by email OR username ----
+    const isEmail = identifier && identifier.includes('@');
     const result = await db.query(
       `SELECT id, username, email, password_hash, display_name, 
               avatar_url, bio, is_online
-       FROM users WHERE email = $1`,
-      [email]
+       FROM users WHERE ${isEmail ? 'email' : 'username'} = $1`,
+      [identifier]
     );
     
     if (result.rows.length === 0) {
       // Use a generic error message — don't reveal whether
-      // the email exists (security best practice)
+      // the email/username exists (security best practice)
       return res.status(401).json({ 
         error: 'Invalid email or password.' 
       });

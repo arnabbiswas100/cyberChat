@@ -341,15 +341,19 @@ class MessagesManager {
     this.clearPendingFiles();
 
     try {
-      // Send via REST API (socket.js will broadcast the new message via socket events)
-      await API.messages.sendMessage(
+      // Send via REST API. The server also emits a socket new_message event,
+      // but we render from the REST response directly so the sender sees their
+      // message immediately without waiting for the socket echo.
+      const result = await API.messages.sendMessage(
         this.currentConvId,
         content,
         replyToId,
         files.length > 0 ? files : null
       );
-      // The new_message socket event will fire and call onNewMessage()
-      // which adds the message to the UI.
+      // Render the confirmed message returned by the server
+      if (result && result.message) {
+        this.onNewMessage(result.message);
+      }
     } catch (err) {
       showToast('Failed to send: ' + err.message, 'error');
       // Restore the input content on failure
@@ -838,14 +842,14 @@ class MessagesManager {
     area.addEventListener('scroll', () => {
       if (area.scrollTop < 100 && this.hasMore && !this.isLoading) {
         const oldest = this.messages[0];
-        if (oldest) this.fetchMessages(oldest.id);
+        if (oldest) this.fetchMessages(oldest.created_at);
       }
     });
 
     // Also handle the "Load Older" button
     document.getElementById('load-more-btn').addEventListener('click', () => {
       const oldest = this.messages[0];
-      if (oldest) this.fetchMessages(oldest.id);
+      if (oldest) this.fetchMessages(oldest.created_at);
     });
   }
 

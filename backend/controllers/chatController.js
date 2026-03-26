@@ -78,8 +78,33 @@ const getConversations = async (req, res) => {
       ORDER BY COALESCE(m.created_at, c.created_at) DESC`,
       [userId]
     );
-    
-    res.json({ conversations: result.rows });
+
+    // FIX: The frontend expects conv.other_user as a nested object,
+    // but the SQL query returns flat fields (other_user_id, other_username, etc.).
+    // We reshape each row here so the frontend gets the shape it expects.
+    const conversations = result.rows.map(row => ({
+      id: row.id,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      unread_count: parseInt(row.unread_count) || 0,
+      last_message: row.last_message_content ? {
+        content: row.last_message_content,
+        message_type: row.last_message_type,
+        created_at: row.last_message_at,
+        sender_id: row.last_message_sender_id,
+        is_deleted_for_everyone: row.last_message_deleted,
+      } : null,
+      other_user: {
+        id: row.other_user_id,
+        username: row.other_username,
+        display_name: row.other_display_name,
+        avatar_url: row.other_avatar_url,
+        is_online: row.other_is_online,
+        last_seen: row.other_last_seen,
+      },
+    }));
+
+    res.json({ conversations });
     
   } catch (error) {
     console.error('GetConversations error:', error);

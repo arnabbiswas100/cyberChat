@@ -84,11 +84,14 @@ const validateRegister = (data) => {
 // -------------------------------------------------------
 const validateLogin = (data) => {
   const errors = [];
-  const { email, password } = data;
-  
-  if (!email) errors.push('Email is required');
+  // FIX: frontend sends { identifier, password } where identifier can be
+  // an email address OR a username. Accept either field name.
+  const identifier = data.identifier || data.email;
+  const { password } = data;
+
+  if (!identifier) errors.push('Email or username is required');
   if (!password) errors.push('Password is required');
-  
+
   return errors;
 };
 
@@ -153,7 +156,11 @@ const validateRequest = (type) => (req, res, next) => {
   if (req.body.email) {
     req.body.email = req.body.email.trim().toLowerCase();
   }
-  
+  // FIX: normalize identifier (used by login) alongside the legacy email field
+  if (req.body.identifier) {
+    req.body.identifier = req.body.identifier.trim().toLowerCase();
+  }
+
   next();
 };
 

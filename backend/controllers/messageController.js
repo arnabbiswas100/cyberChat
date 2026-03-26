@@ -123,8 +123,8 @@ const getMessages = async (req, res) => {
 
 // -------------------------------------------------------
 // sendMessage: POST /api/messages/:conversationId
-// Saves a new message to the database.
-// (The real-time socket event is emitted from socketManager)
+// Saves a new message to the database and emits a
+// real-time socket event to all conversation participants.
 // -------------------------------------------------------
 const sendMessage = async (req, res) => {
   try {
@@ -133,7 +133,7 @@ const sendMessage = async (req, res) => {
     const { content, message_type = 'text', reply_to_id } = req.body;
     
     // Verify access
-    await getConversationAndVerifyAccess(conversationId, userId);
+    const conversation = await getConversationAndVerifyAccess(conversationId, userId);
     
     // For text messages, sanitize content
     const cleanContent = content ? sanitizeString(content) : null;
@@ -210,7 +210,7 @@ const sendMessage = async (req, res) => {
     }
     
     // Fetch the full message with sender info for the response
-    const fullMessage = await db.query(
+    const fullMsgResult = await db.query(
       `SELECT m.*, 
               u.username AS sender_username,
               u.display_name AS sender_display_name,
@@ -225,8 +225,33 @@ const sendMessage = async (req, res) => {
        WHERE m.id = $1`,
       [message.id]
     );
-    
-    res.status(201).json({ message: fullMessage.rows[0] });
+
+    const fullMessage = fullMsgResult.rows[0];
+
+    // FIX: Emit the new_message socket event to everyone in the conversation room.
+    // The REST endpoint never did this before — meaning the sender's UI never updated
+    // and the other user never got a real-time notification.
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`conv:${conversationId}`).emit('new_message', fullMessage);
+
+      // Also ping the other participant if they're online but not in the room,
+      // so their conversation list preview updates.
+      const otherId = conversation.participant_one_id === userId
+        ? conversation.participant_two_id
+        : conversation.participant_one_id;
+
+      const { onlineUsers } = require('../sockets/socketManager');
+      const otherSocketId = onlineUsers.get(otherId);
+      if (otherSocketId) {
+        io.to(otherSocketId).emit('conversation_updated', {
+          conversationId,
+          lastMessage: fullMessage,
+        });
+      }
+    }
+
+    res.status(201).json({ message: fullMessage });
     
   } catch (error) {
     console.error('SendMessage error:', error);
@@ -344,10 +369,6 @@ const deleteMessage = async (req, res) => {
     if (convCheck.rows.length === 0) {
       return res.status(403).json({ error: 'Access denied.' });
     }
-    
-    // For "delete for self", we track who deleted it
-    const isSender = message.sender_id === userId;
-    const column = isSender ? 'is_deleted_for_sender' : 'is_deleted_for_sender';
     
     await db.query(
       `UPDATE messages SET is_deleted_for_sender = true, updated_at = NOW() 
