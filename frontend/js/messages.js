@@ -440,7 +440,7 @@ class MessagesManager {
 
     const el = document.querySelector(`[data-msg-id="${data.message_id}"]`);
     if (el) {
-      if (data.delete_for_everyone) {
+      if (data.delete_for_everyone || data.deleted_for_everyone) {
         // Replace bubble content with "deleted" notice
         const bubble = el.querySelector('.msg-bubble');
         if (bubble) {
