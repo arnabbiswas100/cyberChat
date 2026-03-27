@@ -208,15 +208,16 @@ class MessagesManager {
     let contentHtml = '';
 
     // Reply quote (if this message is replying to another)
-    if (msg.reply_to) {
-      const replyAuthor = msg.reply_to.sender?.display_name || msg.reply_to.sender?.username || 'Unknown';
-      const replyText = msg.reply_to.is_deleted
-        ? '⊗ Deleted message'
-        : (msg.reply_to.content || 'Attachment').slice(0, 80);
+    // Backend returns flat fields: reply_content, reply_sender_username (not nested reply_to object)
+    const hasReply = msg.reply_to_id && (msg.reply_content != null || msg.reply_sender_username);
+    if (hasReply || msg.reply_to) {
+      const replyAuthor = msg.reply_sender_username || msg.reply_to?.sender?.display_name || msg.reply_to?.sender?.username || 'Unknown';
+      const replyText = (msg.reply_content != null ? msg.reply_content : msg.reply_to?.content || 'Attachment') || '⊗ Deleted message';
+      const replyTextSliced = String(replyText).slice(0, 80);
       contentHtml += `
         <div class="msg-reply-quote">
           <div class="quote-author">${escapeHtml(replyAuthor)}</div>
-          <div class="quote-text">${escapeHtml(replyText)}</div>
+          <div class="quote-text">${escapeHtml(replyTextSliced)}</div>
         </div>`;
     }
 
@@ -229,8 +230,16 @@ class MessagesManager {
       contentHtml += `<div class="msg-text">${withMentions}</div>`;
     }
 
-    // Attachments
-    if (msg.attachments && msg.attachments.length > 0) {
+    // Attachments — backend stores file in flat file_url / file_mime_type fields
+    if (msg.file_url) {
+      const att = {
+        url: msg.file_url,
+        original_name: msg.file_name || 'file',
+        file_size: msg.file_size,
+        file_type: msg.file_mime_type || '',
+      };
+      contentHtml += this.renderAttachments([att]);
+    } else if (msg.attachments && msg.attachments.length > 0) {
       contentHtml += this.renderAttachments(msg.attachments);
     }
 
@@ -447,7 +456,8 @@ class MessagesManager {
 
   /** Called when the other user reads our messages */
   onMessagesRead(data) {
-    if (data.conversation_id !== this.currentConvId) return;
+    const convId = data.conversationId || data.conversation_id;
+    if (convId !== this.currentConvId) return;
 
     // Update all our sent messages to show double tick (seen)
     document.querySelectorAll('.message.mine .msg-status').forEach(el => {
@@ -644,6 +654,7 @@ class MessagesManager {
   cancelEdit() {
     const input = document.getElementById('message-input');
     input.value = '';
+    input.style.height = 'auto';
     delete input.dataset.editingId;
     document.getElementById('send-btn').textContent = '▶';
   }

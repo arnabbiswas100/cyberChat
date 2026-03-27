@@ -14,7 +14,7 @@ router.get('/:conversationId', getMessages);
 // POST /api/messages/:conversationId  (with optional file)
 router.post(
   '/:conversationId',
-  uploadFile.single('file'),
+  uploadFile.single('files'),
   handleUploadError,
   sendMessage
 );

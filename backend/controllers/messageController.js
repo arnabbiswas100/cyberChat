@@ -71,9 +71,10 @@ const getMessages = async (req, res) => {
         WHERE m.conversation_id = $1
           AND m.created_at < $2
           AND m.is_deleted_for_everyone = false
+          AND NOT (m.is_deleted_for_sender = true AND m.sender_id = $4)
         ORDER BY m.created_at DESC
         LIMIT $3`;
-      params = [conversationId, new Date(before), pageLimit];
+      params = [conversationId, new Date(before), pageLimit, userId];
     } else {
       sql = `
         SELECT 
@@ -90,9 +91,10 @@ const getMessages = async (req, res) => {
         LEFT JOIN users ru ON rm.sender_id = ru.id
         WHERE m.conversation_id = $1
           AND m.is_deleted_for_everyone = false
+          AND NOT (m.is_deleted_for_sender = true AND m.sender_id = $3)
         ORDER BY m.created_at DESC
         LIMIT $2`;
-      params = [conversationId, pageLimit];
+      params = [conversationId, pageLimit, userId];
     }
     
     const result = await db.query(sql, params);

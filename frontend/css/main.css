@@ -1080,3 +1080,18 @@ textarea.cyber-input:focus {
 
 /* @mention inline highlight */
 .msg-text .at-mention { color: var(--cyan); }
+
+/* ================================================================
+   BUG FIXES
+   ================================================================ */
+
+/* Bug 6 Fix: preserve newlines in message text */
+.msg-text {
+  white-space: pre-wrap;
+}
+
+/* Bug 7 Fix: allow messages-list to shrink so messages-area can scroll */
+.messages-list {
+  min-height: unset;
+  justify-content: flex-start;
+}

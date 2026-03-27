@@ -238,7 +238,7 @@ class SocketManager {
    */
   emitMessageDelete(messageId, conversationId, deleteForEveryone) {
     if (this.socket && this.connected) {
-      this.socket.emit('delete_message', { messageId, conversationId, deleteForEveryone });
+      this.socket.emit('delete_message', { messageId, conversationId, delete_for_everyone: deleteForEveryone });
     }
   }
 
